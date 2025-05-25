@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L, { type LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { School } from '@/types';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 
 // Leaflet icon fix for bundlers
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -64,11 +64,21 @@ export default function InteractiveMap({
   center = DEFAULT_CENTER,
   zoom = DEFAULT_ZOOM,
 }: InteractiveMapProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const handleWhenCreated = useCallback((mapInstance: L.Map) => {
     if (mapRef) {
       mapRef.current = mapInstance;
     }
   }, [mapRef]); // mapRef is stable, so this callback is stable
+
+  if (!isClient) {
+    return null; // Or a placeholder/skeleton if preferred, but parent already handles loading state
+  }
 
   return (
     <MapContainer
