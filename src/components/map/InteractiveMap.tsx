@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L, { type LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { School } from '@/types';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react'; // Added useCallback
 
 // Leaflet icon fix for bundlers
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -64,17 +64,19 @@ export default function InteractiveMap({
   center = DEFAULT_CENTER,
   zoom = DEFAULT_ZOOM,
 }: InteractiveMapProps) {
+  const handleWhenCreated = useCallback((mapInstance: L.Map) => {
+    if (mapRef) {
+      mapRef.current = mapInstance;
+    }
+  }, [mapRef]); // mapRef is stable, so this callback is stable
+
   return (
     <MapContainer
       center={center}
       zoom={zoom}
       scrollWheelZoom={true}
       style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }} // Match card rounding
-      whenCreated={(mapInstance) => {
-        if (mapRef) {
-          mapRef.current = mapInstance;
-        }
-      }}
+      whenCreated={handleWhenCreated} // Use the memoized callback
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
