@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L, { type LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { School } from '@/types';
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 // Leaflet icon fix for bundlers
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -22,8 +22,7 @@ L.Icon.Default.mergeOptions({
 
 interface InteractiveMapProps {
   schools: School[];
-  mapRef: React.MutableRefObject<L.Map | null>;
-  // center and zoom props are removed from here if we rely on defaults and ChangeView
+  // mapRef prop removed
 }
 
 const DEFAULT_CENTER: LatLngExpression = [20, 0]; // Centered broadly on the world
@@ -59,7 +58,6 @@ function ChangeView({ schools }: { schools: School[] }) {
 
 export default function InteractiveMap({
   schools,
-  mapRef,
 }: InteractiveMapProps) {
   const [isClient, setIsClient] = useState(false);
 
@@ -67,11 +65,7 @@ export default function InteractiveMap({
     setIsClient(true);
   }, []);
 
-  const handleWhenCreated = useCallback((mapInstance: L.Map) => {
-    if (mapRef) {
-      mapRef.current = mapInstance;
-    }
-  }, [mapRef]); // mapRef is stable, so this callback is stable
+  // handleWhenCreated and whenCreated prop removed
 
   if (!isClient) {
     return null; // Or a placeholder/skeleton if preferred, but parent already handles loading state
@@ -84,7 +78,7 @@ export default function InteractiveMap({
       zoom={DEFAULT_ZOOM} // Use default directly
       scrollWheelZoom={true}
       style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }} // Match card rounding
-      whenCreated={handleWhenCreated}
+      // whenCreated prop removed
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

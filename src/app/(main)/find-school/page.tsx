@@ -37,7 +37,8 @@ export default function FindSchoolPage() {
   const [showVirtual, setShowVirtual] = useState<boolean>(false);
   const [filteredSchools, setFilteredSchools] = useState<School[]>(mockSchools);
   const [currentPage, setCurrentPage] = useState(1);
-  const mapRef = useRef<L.Map | null>(null);
+  // mapRef is kept for potential future use, but not passed to InteractiveMap for now.
+  const mapRef = useRef<L.Map | null>(null); 
 
   useEffect(() => {
     let schools = mockSchools;
@@ -81,6 +82,18 @@ export default function FindSchoolPage() {
     : country === 'Online'
       ? 'Online Schools'
       : (city === 'all' || !city ? country : `${city}, ${country}`);
+
+  // Zoom button handlers are temporarily disabled as mapRef is not connected
+  const handleZoomIn = () => {
+    // mapRef.current?.zoomIn(); 
+    console.warn("Zoom In functionality temporarily adjusted. mapRef not connected.");
+  };
+
+  const handleZoomOut = () => {
+    // mapRef.current?.zoomOut();
+    console.warn("Zoom Out functionality temporarily adjusted. mapRef not connected.");
+  };
+
 
   return (
     <div>
@@ -149,12 +162,12 @@ export default function FindSchoolPage() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-primary">School Locations <span className="text-muted-foreground text-lg">({selectedLocationText})</span></h2>
           <div className="relative h-[400px] md:h-[500px] w-full bg-muted rounded-lg shadow-inner overflow-hidden">
-            <InteractiveMap schools={filteredSchools} mapRef={mapRef} />
+            <InteractiveMap schools={filteredSchools} />
             <div className="absolute top-2 right-2 flex flex-col space-y-2 z-[401]"> {/* Increased z-index */}
-              <Button size="icon" variant="outline" className="bg-card" aria-label="Zoom In" onClick={() => mapRef.current?.zoomIn()}>
+              <Button size="icon" variant="outline" className="bg-card" aria-label="Zoom In" onClick={handleZoomIn}>
                 <ZoomIn className="h-5 w-5" />
               </Button>
-              <Button size="icon" variant="outline" className="bg-card" aria-label="Zoom Out" onClick={() => mapRef.current?.zoomOut()}>
+              <Button size="icon" variant="outline" className="bg-card" aria-label="Zoom Out" onClick={handleZoomOut}>
                 <ZoomOut className="h-5 w-5" />
               </Button>
             </div>
