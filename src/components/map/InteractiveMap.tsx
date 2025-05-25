@@ -59,8 +59,7 @@ interface ActualMapComponentProps {
 function ActualMapComponent({ schools, mapStyle }: ActualMapComponentProps) {
   return (
     <MapContainer
-      id="ndsp-leaflet-map"
-      key="leaflet-map-container-instance"
+      key="leaflet-map-container-instance" // Static key for React reconciliation
       center={DEFAULT_CENTER}
       zoom={DEFAULT_ZOOM}
       scrollWheelZoom={true}
