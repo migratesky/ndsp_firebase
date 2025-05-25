@@ -1,8 +1,9 @@
+
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import type { BreadcrumbItem, ContactRegion } from '@/types';
 import { mockContactRegions } from '@/data/mockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Phone, Users, Building } from 'lucide-react';
+import { Mail, Phone, Users, Building, FileText } from 'lucide-react';
 
 const BREADCRUMB_ITEMS: BreadcrumbItem[] = [
   { label: 'Contact Us', href: '/contact' },
