@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L, { type LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { School } from '@/types';
-import { useEffect, useState, useMemo } from 'react'; // Added useMemo
+import { useEffect, useState, useMemo } from 'react';
 
 // Leaflet icon fix for bundlers
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -19,10 +19,6 @@ L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x.src,
   shadowUrl: markerShadow.src,
 });
-
-interface InteractiveMapProps {
-  schools: School[];
-}
 
 const DEFAULT_CENTER: LatLngExpression = [20, 0]; // Centered broadly on the world
 const DEFAULT_ZOOM = 2;
@@ -55,34 +51,20 @@ function ChangeView({ schools }: { schools: School[] }) {
   return null;
 }
 
-export default function InteractiveMap({
-  schools,
-}: InteractiveMapProps) {
-  const [isClient, setIsClient] = useState(false);
+interface ActualMapComponentProps {
+  schools: School[];
+  mapStyle: React.CSSProperties;
+}
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Memoize the style object to ensure stable reference
-  const mapStyle = useMemo(() => ({
-    height: '100%',
-    width: '100%',
-    borderRadius: '0.5rem', // Match card rounding
-  }), []);
-
-  if (!isClient) {
-    return null; // Or a placeholder/skeleton if preferred, parent already handles loading state
-  }
-
+function ActualMapComponent({ schools, mapStyle }: ActualMapComponentProps) {
   return (
     <MapContainer
-      id="ndsp-leaflet-map" // Added static id
-      key="leaflet-map-container-instance" // Static key
-      center={DEFAULT_CENTER} // Use default directly
-      zoom={DEFAULT_ZOOM} // Use default directly
+      id="ndsp-leaflet-map"
+      key="leaflet-map-container-instance"
+      center={DEFAULT_CENTER}
+      zoom={DEFAULT_ZOOM}
       scrollWheelZoom={true}
-      style={mapStyle} // Use memoized style
+      style={mapStyle}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -104,4 +86,29 @@ export default function InteractiveMap({
         ))}
     </MapContainer>
   );
+}
+
+
+interface InteractiveMapProps {
+  schools: School[];
+}
+
+export default function InteractiveMap({ schools }: InteractiveMapProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const mapStyle = useMemo(() => ({
+    height: '100%',
+    width: '100%',
+    borderRadius: '0.5rem', // Match card rounding
+  }), []);
+
+  if (!isClient) {
+    return null; // Or a placeholder/skeleton if preferred, parent already handles loading state
+  }
+
+  return <ActualMapComponent schools={schools} mapStyle={mapStyle} />;
 }
