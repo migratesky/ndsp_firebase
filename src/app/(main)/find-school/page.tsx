@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -22,8 +23,8 @@ const BREADCRUMB_ITEMS: BreadcrumbItem[] = [
 const ITEMS_PER_PAGE = 5;
 
 export default function FindSchoolPage() {
-  const [country, setCountry] = useState<string>('');
-  const [city, setCity] = useState<string>('');
+  const [country, setCountry] = useState<string>('all');
+  const [city, setCity] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showBoarding, setShowBoarding] = useState<boolean>(false);
   const [showVirtual, setShowVirtual] = useState<boolean>(false);
@@ -32,16 +33,17 @@ export default function FindSchoolPage() {
 
   useEffect(() => {
     let schools = mockSchools;
-    if (country) {
-      schools = schools.filter(school => school.country === country || school.country === 'Online');
+    if (country && country !== 'all') {
+      schools = schools.filter(school => school.country === country || (country === 'Online' && school.isVirtual));
     }
-    if (city && country !== 'Online') { // Don't filter by city if "Online" is selected country
+    // Only filter by city if a specific country (not 'Online' and not 'all') is selected and a specific city (not 'all') is selected
+    if (country && country !== 'all' && country !== 'Online' && city && city !== 'all') {
       schools = schools.filter(school => school.city === city);
     }
     if (searchTerm) {
       schools = schools.filter(school =>
         school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        school.city.toLowerCase().includes(searchTerm.toLowerCase())
+        (school.city && school.city.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     if (showBoarding) {
@@ -63,7 +65,12 @@ export default function FindSchoolPage() {
     }
   };
   
-  const selectedLocationText = country ? (city ? `${city}, ${country}` : country) : 'Worldwide';
+  const selectedLocationText = country === 'all'
+    ? 'Worldwide'
+    : country === 'Online'
+      ? 'Online'
+      : (city === 'all' || !city ? country : `${city}, ${country}`);
+
 
   return (
     <div>
@@ -78,25 +85,25 @@ export default function FindSchoolPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
             <div>
               <Label htmlFor="country" className="text-sm font-medium">Country:</Label>
-              <Select value={country} onValueChange={setCountry}>
+              <Select value={country} onValueChange={(value) => { setCountry(value); if (value === 'all' || value === 'Online') setCity('all'); }}>
                 <SelectTrigger id="country">
                   <SelectValue placeholder="Select Country" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Countries</SelectItem>
+                  <SelectItem value="all">All Countries</SelectItem>
                   {mockCountries.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label htmlFor="city" className="text-sm font-medium">City/Duty Station:</Label>
-               <Select value={city} onValueChange={setCity} disabled={!country || country === 'Online'}>
+               <Select value={city} onValueChange={setCity} disabled={country === 'all' || country === 'Online' || !mockCities[country]?.length}>
                 <SelectTrigger id="city">
                   <SelectValue placeholder="Select City" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Cities</SelectItem>
-                  {country && mockCities[country]?.map(ci => <SelectItem key={ci} value={ci}>{ci}</SelectItem>)}
+                  <SelectItem value="all">All Cities</SelectItem>
+                  {country && country !== 'all' && country !== 'Online' && mockCities[country]?.map(ci => <SelectItem key={ci} value={ci}>{ci}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -185,6 +192,8 @@ export default function FindSchoolPage() {
                     </PaginationLink>
                   </PaginationItem>
                 ))}
+                {/* Render ellipsis if needed */}
+                {/* Example: currentPage < totalPages - 2 && totalPages > 5 && <PaginationEllipsis /> */}
                 <PaginationItem>
                   <PaginationNext href="#" onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }} aria-disabled={currentPage === totalPages}/>
                 </PaginationItem>
@@ -196,3 +205,4 @@ export default function FindSchoolPage() {
     </div>
   );
 }
+
