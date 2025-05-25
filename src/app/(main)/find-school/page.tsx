@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type L from 'leaflet'; // Import Leaflet type for mapRef
+import ErrorBoundary from '@/components/ErrorBoundary';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import SchoolCard from '@/components/page-specific/SchoolCard';
 import { Button } from '@/components/ui/button';
@@ -96,9 +97,10 @@ export default function FindSchoolPage() {
 
 
   return (
-    <div>
-      <Breadcrumbs items={BREADCRUMB_ITEMS} />
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <ErrorBoundary>
+      <div>
+        <Breadcrumbs items={BREADCRUMB_ITEMS} />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold mb-6 text-primary">
           Find PK-12 Educational Options Worldwide <cite className="text-xs not-italic text-muted-foreground">[cite: 13]</cite>
         </h1>
@@ -215,5 +217,6 @@ export default function FindSchoolPage() {
         </section>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

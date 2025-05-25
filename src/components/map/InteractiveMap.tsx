@@ -28,23 +28,27 @@ function ChangeView({ schools }: { schools: School[] }) {
   const map = useMap();
 
   useEffect(() => {
-    if (schools.length > 0) {
-      const validSchoolsWithCoords = schools.filter(
-        (school) => typeof school.lat === 'number' && typeof school.lng === 'number'
-      );
-
-      if (validSchoolsWithCoords.length > 0) {
-        const bounds = L.latLngBounds(
-          validSchoolsWithCoords.map((s) => [s.lat!, s.lng!])
+    try {
+      if (schools.length > 0) {
+        const validSchoolsWithCoords = schools.filter(
+          (school) => typeof school.lat === 'number' && typeof school.lng === 'number'
         );
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+
+        if (validSchoolsWithCoords.length > 0) {
+          const bounds = L.latLngBounds(
+            validSchoolsWithCoords.map((s) => [s.lat!, s.lng!])
+          );
+          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+        } else {
+          // No valid schools with coordinates, reset to default view
+          map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+        }
       } else {
-        // No valid schools with coordinates, reset to default view
+        // No schools in filter, reset to default view
         map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
       }
-    } else {
-      // No schools in filter, reset to default view
-      map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+    } catch (error) {
+      console.error("Error in ChangeView while setting map view/bounds:", error);
     }
   }, [schools, map]);
 
@@ -57,6 +61,10 @@ interface ActualMapComponentProps {
 }
 
 function ActualMapComponent({ schools, mapStyle }: ActualMapComponentProps) {
+  const schoolsWithCoords = schools.filter(
+    (school) => typeof school.lat === 'number' && typeof school.lng === 'number'
+  );
+
   return (
     <MapContainer
       key="leaflet-map-container-instance" // Static key for React reconciliation
@@ -70,19 +78,42 @@ function ActualMapComponent({ schools, mapStyle }: ActualMapComponentProps) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <ChangeView schools={schools} />
-      {schools
-        .filter((school) => typeof school.lat === 'number' && typeof school.lng === 'number')
-        .map((school) => (
-          <Marker key={school.id} position={[school.lat!, school.lng!]}>
-            <Popup>
-              <strong>{school.name}</strong>
-              <br />
-              {school.city}, {school.country}
-              <br />
-              <a href={`/find-school/${school.id}`} target="_blank" rel="noopener noreferrer" style={{color: 'hsl(var(--accent))', textDecoration: 'underline'}}>View Details</a>
-            </Popup>
-          </Marker>
-        ))}
+      {schoolsWithCoords.length === 0 ? (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          padding: '20px',
+          borderRadius: '8px',
+          zIndex: 1000, // Ensure it's above map tiles
+          textAlign: 'center',
+          color: 'hsl(var(--foreground))', // Use theme foreground color
+          border: '1px solid hsl(var(--border))', // Use theme border color
+        }}>
+          No school locations to display for current filters.
+        </div>
+      ) : (
+        schoolsWithCoords.map((school) => {
+          try {
+            return (
+              <Marker key={school.id} position={[school.lat!, school.lng!]}>
+                <Popup>
+                  <strong>{school.name}</strong>
+                  <br />
+                  {school.city}, {school.country}
+                  <br />
+                  <a href={`/find-school/${school.id}`} target="_blank" rel="noopener noreferrer" style={{color: 'hsl(var(--accent))', textDecoration: 'underline'}}>View Details</a>
+                </Popup>
+              </Marker>
+            );
+          } catch (error) {
+            console.error(`Error creating marker for school ID: ${school.id}`, error);
+            return null; // Skip this marker
+          }
+        })
+      )}
     </MapContainer>
   );
 }
