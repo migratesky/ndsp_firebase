@@ -163,8 +163,8 @@ export default function FindSchoolPage() {
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-primary">School Locations <span className="text-muted-foreground text-lg">({selectedLocationText})</span></h2>
-          <div className="relative h-[400px] md:h-[500px] w-full bg-muted rounded-lg shadow-inner overflow-hidden">
-            <InteractiveMap schools={filteredSchools} />
+          <div className="relative h-[400px] md:h-[500px] w-full bg-muted rounded-lg shadow-inner overflow-hidden" data-testid="map-container-wrapper">
+            <InteractiveMap schools={filteredSchools} data-testid="interactive-map" />
             <div className="absolute top-2 right-2 flex flex-col space-y-2 z-[401]"> {/* Increased z-index */}
               <Button size="icon" variant="outline" className="bg-card" aria-label="Zoom In" onClick={handleZoomIn}>
                 <ZoomIn className="h-5 w-5" />

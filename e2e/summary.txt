@@ -1,0 +1,58 @@
+# Playwright Test Summary - find-school.spec.js
+
+## Test Execution Overview
+- **Status**: All 3 tests passed (chromium, firefox, webkit)
+- **Duration**: 9.4s total
+- **Retry Mechanism**: Implemented for map verification (3 attempts)
+
+## Performance Metrics
+```json
+{
+  "firstContentfulPaint": "724-757ms",
+  "timeToInteractive": "677ms",
+  "mapVisible": "3699-4149ms",
+  "testDuration": "3773-4348ms"
+}
+```
+
+## Key Observations
+1. **Map Loading**:
+   - Successful after retries (took 3.7-4.1s to become visible)
+   - Console errors during initialization
+   - Tile loading required retries in Firefox
+
+2. **Network Tracking**:
+   - No map resources captured (interception needs adjustment)
+   - Detected Fast Refresh events during tests
+
+3. **User Interactions**:
+   - Click and scroll simulations worked reliably
+   - UI state tracking successful
+
+4. **Visual Verification**:
+   - Screenshots saved for map closeup and full page
+   - Responsive layout tested (1216x500px → 592x400px)
+
+## Issues Identified
+1. **Performance**:
+   - Test duration exceeds 3s budget (actual: 3.7-4.3s)
+   - Map visibility is primary bottleneck
+
+2. **Errors**:
+   - Console: "Failed to initialize map: Error"
+   - Fast Refresh events during test execution
+
+3. **Debugging Gaps**:
+   - Resource tracking not capturing map assets
+   - Need more detailed initialization logs
+
+## Recommendations
+1. Investigate map initialization errors
+2. Fix resource tracking implementation
+3. Optimize map loading performance
+4. Add visual regression baselines
+
+## Test Artifacts
+- Screenshots: test-results/find-school.png
+- Metrics: test-results/find-school page test-metrics.json
+- Logs: Playwright trace files

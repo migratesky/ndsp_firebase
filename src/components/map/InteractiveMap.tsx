@@ -1,144 +1,55 @@
-
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L, { type LatLngExpression } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import type { School } from '@/types';
-import { useEffect, useState, useMemo } from 'react';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
-// Leaflet icon fix for bundlers
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-// @ts-ignore
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon.src,
-  iconRetinaUrl: markerIcon2x.src,
-  shadowUrl: markerShadow.src,
-});
-
-const DEFAULT_CENTER: LatLngExpression = [20, 0]; // Centered broadly on the world
-const DEFAULT_ZOOM = 2;
-
-// Component to handle map view changes (fit bounds, set default view)
-function ChangeView({ schools }: { schools: School[] }) {
-  const map = useMap();
-
-  useEffect(() => {
-    try {
-      if (schools.length > 0) {
-        const validSchoolsWithCoords = schools.filter(
-          (school) => typeof school.lat === 'number' && typeof school.lng === 'number'
-        );
-
-        if (validSchoolsWithCoords.length > 0) {
-          const bounds = L.latLngBounds(
-            validSchoolsWithCoords.map((s) => [s.lat!, s.lng!])
-          );
-          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
-        } else {
-          // No valid schools with coordinates, reset to default view
-          map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
-        }
-      } else {
-        // No schools in filter, reset to default view
-        map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
-      }
-    } catch (error) {
-      console.error("Error in ChangeView while setting map view/bounds:", error);
-    }
-  }, [schools, map]);
-
-  return null;
-}
-
-interface ActualMapComponentProps {
-  schools: School[];
-  mapStyle: React.CSSProperties;
-}
-
-function ActualMapComponent({ schools, mapStyle }: ActualMapComponentProps) {
-  const schoolsWithCoords = schools.filter(
-    (school) => typeof school.lat === 'number' && typeof school.lng === 'number'
-  );
-
-  return (
-    <MapContainer
-      key="leaflet-map-container-instance" // Static key for React reconciliation
-      center={DEFAULT_CENTER}
-      zoom={DEFAULT_ZOOM}
-      scrollWheelZoom={true}
-      style={mapStyle}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <ChangeView schools={schools} />
-      {schoolsWithCoords.length === 0 ? (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          padding: '20px',
-          borderRadius: '8px',
-          zIndex: 1000, // Ensure it's above map tiles
-          textAlign: 'center',
-          color: 'hsl(var(--foreground))', // Use theme foreground color
-          border: '1px solid hsl(var(--border))', // Use theme border color
-        }}>
-          No school locations to display for current filters.
-        </div>
-      ) : (
-        schoolsWithCoords.map((school) => {
-          try {
-            return (
-              <Marker key={school.id} position={[school.lat!, school.lng!]}>
-                <Popup>
-                  <strong>{school.name}</strong>
-                  <br />
-                  {school.city}, {school.country}
-                  <br />
-                  <a href={`/find-school/${school.id}`} target="_blank" rel="noopener noreferrer" style={{color: 'hsl(var(--accent))', textDecoration: 'underline'}}>View Details</a>
-                </Popup>
-              </Marker>
-            );
-          } catch (error) {
-            console.error(`Error creating marker for school ID: ${school.id}`, error);
-            return null; // Skip this marker
-          }
-        })
-      )}
-    </MapContainer>
-  );
-}
-
+const MapComponent = dynamic(
+  () => import('./MapComponent'),
+  { 
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">Loading map...</div>
+  }
+);
 
 interface InteractiveMapProps {
   schools: School[];
+  'data-testid'?: string;
 }
 
-export default function InteractiveMap({ schools }: InteractiveMapProps) {
-  const [isClient, setIsClient] = useState(false);
+export default function InteractiveMap({ schools, 'data-testid': testId }: InteractiveMapProps) {
+  const [hasError, setHasError] = useState(false);
+  const [errorDetails, setErrorDetails] = useState('');
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const onMapInit = (map: any) => {
+    console.log('[InteractiveMap] Map initialized successfully');
+    console.log('[InteractiveMap] Map container dimensions:', map.getSize());
+  };
 
-  const mapStyle = useMemo(() => ({
-    height: '100%',
-    width: '100%',
-    borderRadius: '0.5rem', // Match card rounding
-  }), []);
-
-  if (!isClient) {
-    return null; // Or a placeholder/skeleton if preferred, parent already handles loading state
+  if (hasError) {
+    return (
+      <div data-testid="map-error">
+        <h3>Map Error</h3>
+        <p>{errorDetails}</p>
+      </div>
+    );
   }
 
-  return <ActualMapComponent schools={schools} mapStyle={mapStyle} />;
+  return (
+    <div className="w-full h-full" data-testid={testId || "interactive-map"}>
+      <ErrorBoundary 
+        onError={(error) => {
+          console.error('[InteractiveMap] Error rendering MapComponent:', error);
+          setErrorDetails(error?.message || 'Component rendering failed');
+          setHasError(true);
+        }}
+      >
+        <MapComponent 
+          schools={schools} 
+          onMapInit={onMapInit}
+        />
+      </ErrorBoundary>
+    </div>
+  );
 }
