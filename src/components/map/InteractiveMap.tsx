@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L, { type LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { School } from '@/types';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useMemo } from 'react'; // Added useMemo
 
 // Leaflet icon fix for bundlers
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -22,7 +22,6 @@ L.Icon.Default.mergeOptions({
 
 interface InteractiveMapProps {
   schools: School[];
-  // mapRef prop removed
 }
 
 const DEFAULT_CENTER: LatLngExpression = [20, 0]; // Centered broadly on the world
@@ -65,10 +64,15 @@ export default function InteractiveMap({
     setIsClient(true);
   }, []);
 
-  // handleWhenCreated and whenCreated prop removed
+  // Memoize the style object to ensure stable reference
+  const mapStyle = useMemo(() => ({
+    height: '100%',
+    width: '100%',
+    borderRadius: '0.5rem', // Match card rounding
+  }), []);
 
   if (!isClient) {
-    return null; // Or a placeholder/skeleton if preferred, but parent already handles loading state
+    return null; // Or a placeholder/skeleton if preferred, parent already handles loading state
   }
 
   return (
@@ -77,8 +81,7 @@ export default function InteractiveMap({
       center={DEFAULT_CENTER} // Use default directly
       zoom={DEFAULT_ZOOM} // Use default directly
       scrollWheelZoom={true}
-      style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }} // Match card rounding
-      // whenCreated prop removed
+      style={mapStyle} // Use memoized style
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
