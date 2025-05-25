@@ -9,21 +9,21 @@ export default function AdminDashboardPage() {
   return (
     <div className="flex min-h-screen bg-muted/40">
       {/* Admin Sidebar Placeholder */}
-      <aside className="w-64 bg-primary text-primary-foreground p-4 space-y-2 hidden md:block">
+      <aside className="w-64 bg-primary text-primary-foreground p-4 space-y-2 hidden md:flex md:flex-col">
         <h2 className="text-xl font-semibold mb-6">Admin Panel</h2>
-        <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80" asChild>
+        <Button variant="secondary" className="w-full justify-start" asChild>
           <Link href="/admin/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard</Link>
         </Button>
-        <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80">
-          <School className="mr-2 h-4 w-4" /> School DB Mgt
+        <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80" asChild>
+          <Link href="/admin/school-management"><School className="mr-2 h-4 w-4" /> School DB Mgt</Link>
         </Button>
-        <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80">
-          <Users className="mr-2 h-4 w-4" /> User Mgt
+        <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80" asChild>
+          <Link href="/admin/user-management"><Users className="mr-2 h-4 w-4" /> User Mgt</Link>
         </Button>
-        <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80">
-          <FileEdit className="mr-2 h-4 w-4" /> Content Mgt
+        <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80" asChild>
+          <Link href="/admin/content-management"><FileEdit className="mr-2 h-4 w-4" /> Content Mgt</Link>
         </Button>
-        <div className="pt-auto !mt-auto">
+        <div className="mt-auto"> {/* Pushes logout to the bottom */}
              <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80 !mt-auto" asChild>
                 <Link href="/"><LogOut className="mr-2 h-4 w-4" /> Logout</Link>
             </Button>
@@ -70,8 +70,8 @@ export default function AdminDashboardPage() {
         <section className="mt-8">
           <h2 className="text-2xl font-semibold mb-4 text-primary">Common Tasks</h2>
           <div className="space-x-4">
-            <Button variant="outline">Add New School</Button>
-            <Button variant="outline">Manage Users</Button>
+            <Button variant="outline" asChild><Link href="/admin/school-management">Add New School</Link></Button>
+            <Button variant="outline" asChild><Link href="/admin/user-management">Manage Users</Link></Button>
             <Button variant="outline">View Analytics</Button>
           </div>
         </section>
