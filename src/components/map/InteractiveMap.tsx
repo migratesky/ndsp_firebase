@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L, { type LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { School } from '@/types';
-import { useEffect, useCallback } from 'react'; // Added useCallback
+import { useEffect, useCallback } from 'react';
 
 // Leaflet icon fix for bundlers
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -72,11 +72,12 @@ export default function InteractiveMap({
 
   return (
     <MapContainer
+      key="leaflet-map-container-instance" // Added a static key
       center={center}
       zoom={zoom}
       scrollWheelZoom={true}
       style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }} // Match card rounding
-      whenCreated={handleWhenCreated} // Use the memoized callback
+      whenCreated={handleWhenCreated}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
