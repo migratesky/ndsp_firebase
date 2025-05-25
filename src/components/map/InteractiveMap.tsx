@@ -23,8 +23,7 @@ L.Icon.Default.mergeOptions({
 interface InteractiveMapProps {
   schools: School[];
   mapRef: React.MutableRefObject<L.Map | null>;
-  center?: LatLngExpression;
-  zoom?: number;
+  // center and zoom props are removed from here if we rely on defaults and ChangeView
 }
 
 const DEFAULT_CENTER: LatLngExpression = [20, 0]; // Centered broadly on the world
@@ -61,8 +60,6 @@ function ChangeView({ schools }: { schools: School[] }) {
 export default function InteractiveMap({
   schools,
   mapRef,
-  center = DEFAULT_CENTER,
-  zoom = DEFAULT_ZOOM,
 }: InteractiveMapProps) {
   const [isClient, setIsClient] = useState(false);
 
@@ -82,9 +79,9 @@ export default function InteractiveMap({
 
   return (
     <MapContainer
-      key="leaflet-map-container-instance" // Added a static key
-      center={center}
-      zoom={zoom}
+      key="leaflet-map-container-instance" // Static key
+      center={DEFAULT_CENTER} // Use default directly
+      zoom={DEFAULT_ZOOM} // Use default directly
       scrollWheelZoom={true}
       style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }} // Match card rounding
       whenCreated={handleWhenCreated}
