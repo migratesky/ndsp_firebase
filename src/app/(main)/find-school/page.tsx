@@ -1,8 +1,9 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
+import type L from 'leaflet'; // Import Leaflet type for mapRef
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import SchoolCard from '@/components/page-specific/SchoolCard';
 import { Button } from '@/components/ui/button';
@@ -12,9 +13,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { mockSchools, mockCountries, mockCities } from '@/data/mockData';
 import type { School, BreadcrumbItem } from '@/types';
-import { Search, ZoomIn, ZoomOut, ListFilter } from 'lucide-react';
+import { Search, ZoomIn, ZoomOut } from 'lucide-react';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Skeleton } from '@/components/ui/skeleton';
 
+// Dynamically import the InteractiveMap component
+const InteractiveMap = dynamic(() => import('@/components/map/InteractiveMap'), {
+  ssr: false, // Leaflet relies on window object, so disable SSR
+  loading: () => <Skeleton className="h-[400px] md:h-[500px] w-full rounded-lg" />,
+});
 
 const BREADCRUMB_ITEMS: BreadcrumbItem[] = [
   { label: 'Find an International School', href: '/find-school' },
@@ -30,13 +37,13 @@ export default function FindSchoolPage() {
   const [showVirtual, setShowVirtual] = useState<boolean>(false);
   const [filteredSchools, setFilteredSchools] = useState<School[]>(mockSchools);
   const [currentPage, setCurrentPage] = useState(1);
+  const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
     let schools = mockSchools;
     if (country && country !== 'all') {
       schools = schools.filter(school => school.country === country || (country === 'Online' && school.isVirtual));
     }
-    // Only filter by city if a specific country (not 'Online' and not 'all') is selected and a specific city (not 'all') is selected
     if (country && country !== 'all' && country !== 'Online' && city && city !== 'all') {
       schools = schools.filter(school => school.city === city);
     }
@@ -50,10 +57,14 @@ export default function FindSchoolPage() {
       schools = schools.filter(school => school.boardingOption);
     }
     if (showVirtual) {
+      // Ensure only virtual schools are shown, regardless of country selection if "Online" is not selected
       schools = schools.filter(school => school.isVirtual);
+    } else if (country !== 'Online') {
+      // If not showing only virtual, and not explicitly looking for 'Online', filter out virtual schools
+      schools = schools.filter(school => !school.isVirtual);
     }
     setFilteredSchools(schools);
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1); 
   }, [country, city, searchTerm, showBoarding, showVirtual]);
 
   const totalPages = Math.ceil(filteredSchools.length / ITEMS_PER_PAGE);
@@ -68,9 +79,8 @@ export default function FindSchoolPage() {
   const selectedLocationText = country === 'all'
     ? 'Worldwide'
     : country === 'Online'
-      ? 'Online'
+      ? 'Online Schools'
       : (city === 'all' || !city ? country : `${city}, ${country}`);
-
 
   return (
     <div>
@@ -80,7 +90,6 @@ export default function FindSchoolPage() {
           Find PK-12 Educational Options Worldwide <cite className="text-xs not-italic text-muted-foreground">[cite: 13]</cite>
         </h1>
 
-        {/* Search Options Section */}
         <section className="mb-8 p-6 bg-card rounded-lg shadow-md">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
             <div>
@@ -137,33 +146,25 @@ export default function FindSchoolPage() {
           </div>
         </section>
 
-        {/* Map Display Area */}
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-primary">School Locations <span className="text-muted-foreground text-lg">({selectedLocationText})</span></h2>
           <div className="relative h-[400px] md:h-[500px] w-full bg-muted rounded-lg shadow-inner overflow-hidden">
-            <Image
-              src="https://placehold.co/1200x500.png"
-              alt="Interactive World Map Placeholder"
-              layout="fill"
-              objectFit="cover"
-              data-ai-hint="world map pointers"
-            />
-            <div className="absolute top-2 right-2 flex flex-col space-y-2">
-              <Button size="icon" variant="outline" className="bg-card" aria-label="Zoom In">
+            <InteractiveMap schools={filteredSchools} mapRef={mapRef} />
+            <div className="absolute top-2 right-2 flex flex-col space-y-2 z-[401]"> {/* Increased z-index */}
+              <Button size="icon" variant="outline" className="bg-card" aria-label="Zoom In" onClick={() => mapRef.current?.zoomIn()}>
                 <ZoomIn className="h-5 w-5" />
               </Button>
-              <Button size="icon" variant="outline" className="bg-card" aria-label="Zoom Out">
+              <Button size="icon" variant="outline" className="bg-card" aria-label="Zoom Out" onClick={() => mapRef.current?.zoomOut()}>
                 <ZoomOut className="h-5 w-5" />
               </Button>
             </div>
-            <div className="absolute bottom-2 left-2 bg-card/80 p-2 rounded text-xs">
-              Hover over a pin to see School Name, City. <cite className="text-xs not-italic text-muted-foreground">[cite: 30]</cite><br/>
+            <div className="absolute bottom-2 left-2 bg-card/80 p-2 rounded text-xs z-[401]"> {/* Increased z-index */}
+              Hover/click on a pin to see School Name, City. <cite className="text-xs not-italic text-muted-foreground">[cite: 30]</cite><br/>
               Map shows locations based on search. <cite className="text-xs not-italic text-muted-foreground">[cite: 29]</cite>
             </div>
           </div>
         </section>
 
-        {/* Results List Area */}
         <section>
           <h2 className="text-2xl font-semibold mb-4 text-primary">
             Displaying Schools for: <span className="text-accent">{selectedLocationText}</span>
@@ -192,8 +193,6 @@ export default function FindSchoolPage() {
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {/* Render ellipsis if needed */}
-                {/* Example: currentPage < totalPages - 2 && totalPages > 5 && <PaginationEllipsis /> */}
                 <PaginationItem>
                   <PaginationNext href="#" onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }} aria-disabled={currentPage === totalPages}/>
                 </PaginationItem>
@@ -205,4 +204,3 @@ export default function FindSchoolPage() {
     </div>
   );
 }
-
