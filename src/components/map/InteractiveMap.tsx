@@ -77,6 +77,7 @@ export default function InteractiveMap({
 
   return (
     <MapContainer
+      id="ndsp-leaflet-map" // Added static id
       key="leaflet-map-container-instance" // Static key
       center={DEFAULT_CENTER} // Use default directly
       zoom={DEFAULT_ZOOM} // Use default directly
