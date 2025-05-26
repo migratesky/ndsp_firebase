@@ -129,40 +129,28 @@ const OUT_LOG_PATH = path.join(process.cwd(), 'out.log');
     this.debugLog('=== Test completed successfully ===');
   }
 
-  /**
-   * Trigger a test error in the browser for testing error handling
-   * @param errorMessage Optional custom error message
-   */
-  async triggerTestError(errorMessage: string = 'Test error for logging verification'): Promise<void> {
-    this.debugLog('Triggering error event for testing');
-    console.log('About to trigger error event...');
-    
-    await this.page.evaluate((message) => {
-      // Log the error to the console
-      console.error(message);
-      
-      // Also trigger the error event for component testing
-      window.dispatchEvent(new ErrorEvent('error', {
-        error: new Error(message)
-      }));
-    }, errorMessage);
-    
-    console.log('Error event triggered in test');
-  }
 
   /**
-   * Check if a specific error was captured
-   * @param errorText Text to search for in the errors
-   * @returns Boolean indicating if the error was found
+   * Force test failure if a specific error pattern is detected
+   * @param errorPattern Text pattern to search for in the errors or console logs
+   * @throws Error if the specified error pattern is found
    */
-  checkForError(errorText: string): boolean {
-    const foundExpectedError = this.errors.some(err => err.includes(errorText));
-    if (foundExpectedError) {
-      console.log(`[SUCCESS] Successfully captured the expected error: ${errorText}`);
-    } else {
-      console.log(`[WARNING] Did not capture the expected error: ${errorText}`);
+  failOnError(errorPattern: string): void {
+    // Check the errors array
+    const foundError = this.errors.find(err => err.includes(errorPattern));
+    if (foundError) {
+      this.debugLog(`[FORCED FAILURE] Found error matching pattern: ${errorPattern}`);
+      throw new Error(`Test failed due to error: ${foundError}`);
     }
-    return foundExpectedError;
+
+    // Also check console logs with type 'error' for the pattern
+    const foundConsoleError = this.consoleLogs.find(
+      log => log.type === 'error' && (log.text.includes(errorPattern) || errorPattern === 'CONSOLE_ERROR')
+    );
+    if (foundConsoleError) {
+      this.debugLog(`[FORCED FAILURE] Found console error matching pattern: ${errorPattern}`);
+      throw new Error(`Test failed due to console error: ${foundConsoleError.text}`);
+    }
   }
 
   /**

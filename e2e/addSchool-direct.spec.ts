@@ -30,9 +30,6 @@ test('Submit new school form', async ({ page }) => {
   await page.locator('button[data-testid="boarding-option"]').click();
   await page.locator('input[name="boardingDetails"]').fill('Dormitory available');
   
-  // Trigger error for testing the logging system
-  await fixture.triggerTestError();
-  
   // Submit form with error handling
   try {
     // Wait for the form submission button to be enabled before clicking it
@@ -86,14 +83,13 @@ test('Submit new school form', async ({ page }) => {
     
     fixture.debugLog('Test verification completed');
   } catch (error) {
-    // Log failure
-    fixture.logError(error as Error);
+    console.error('Test failed:', error);
     throw error;
   }
   
-  // Log final test status
-  fixture.logSuccess();
+  // Check for any console errors and fail the test if specific ones are found
+  fixture.failOnError('CONSOLE_ERROR');
   
-  // Check if we captured the expected error
-  fixture.checkForError('Test error for logging verification');
+  // Log final test status if no errors were found
+  fixture.logSuccess();
 });
