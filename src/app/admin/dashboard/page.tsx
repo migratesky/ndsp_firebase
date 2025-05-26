@@ -70,7 +70,9 @@ export default function AdminDashboardPage() {
         <section className="mt-8">
           <h2 className="text-2xl font-semibold mb-4 text-primary">Common Tasks</h2>
           <div className="space-x-4">
-            <Button variant="outline">Add New School</Button>
+            <Button variant="outline" asChild>
+              <Link href="/admin/dashboard/add">Add New School</Link>
+            </Button>
             <Button variant="outline">Manage Users</Button>
             <Button variant="outline">View Analytics</Button>
           </div>

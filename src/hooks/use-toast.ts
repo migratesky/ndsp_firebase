@@ -155,7 +155,7 @@ function toast({ ...props }: Toast) {
   dispatch({
     type: "ADD_TOAST",
     toast: {
-      ...props,
+      ...(props as Omit<typeof props, 'key'>),
       id,
       open: true,
       onOpenChange: (open) => {
