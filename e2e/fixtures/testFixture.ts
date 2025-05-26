@@ -37,7 +37,7 @@ export class TestFixture {
    */
   constructor(page: Page, logFileName: string) {
     this.page = page;
-const OUT_LOG_PATH = path.join(process.cwd(), 'out.log');
+    const OUT_LOG_PATH = path.join(process.cwd(), 'out.log');
     this.logFile = OUT_LOG_PATH;
     fs.writeFileSync(this.logFile, `=== Starting test at ${new Date().toISOString()} ===\n`);
   }
@@ -144,8 +144,9 @@ const OUT_LOG_PATH = path.join(process.cwd(), 'out.log');
     }
 
     // Also check console logs with type 'error' for the pattern
-    const foundConsoleError = this.consoleLogs.find(
-      log => log.type === 'error' && (log.text.includes(errorPattern) || errorPattern === 'CONSOLE_ERROR')
+    const foundConsoleError = this.consoleLogs.find(log => 
+      log.type === 'error' && 
+      (log.text.includes(errorPattern) || errorPattern === 'CONSOLE_ERROR')
     );
     if (foundConsoleError) {
       this.debugLog(`[FORCED FAILURE] Found console error matching pattern: ${errorPattern}`);

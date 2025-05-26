@@ -28,7 +28,9 @@ export default function AddSchoolPage() {
     accreditation: '',
     lat: 0,
     lng: 0,
-    isVirtual: false
+    isVirtual: false,
+    email: '',
+    principal: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,18 +43,31 @@ export default function AddSchoolPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          id: `school-${Date.now()}` // Generate a temporary ID
+          name: formData.name,
+          address: formData.address,
+          city: formData.city,
+          country: formData.country,
+          gradesServed: formData.gradesServed,
+          phone: formData.phone,
+          email: formData.email,
+          website: formData.website,
+          accreditation: formData.accreditation,
+          principal: formData.principal
         }),
       });
 
       if (response.ok) {
-        toast(<div data-testid="toast-success">
-          <div>
-            <h2>Success</h2>
-            <p>School added successfully</p>
-          </div>
-        </div>);
+        toast({
+          title: 'Success',
+          description: 'School added successfully',
+          'data-testid': 'toast-success',
+          variant: 'default'
+        });
+        
+        // Redirect to schools list after 2 seconds
+        setTimeout(() => {
+          window.location.href = '/admin/schools';
+        }, 2000);
       } else {
         const error = await response.json();
         toast({
@@ -176,6 +191,29 @@ export default function AddSchoolPage() {
                       name="phone" 
                       type="tel" 
                       value={formData.phone} 
+                      onChange={handleChange} 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      data-testid="email"
+                      id="email" 
+                      name="email" 
+                      type="email" 
+                      value={formData.email} 
+                      onChange={handleChange} 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="principal">Principal</Label>
+                    <Input 
+                      data-testid="principal"
+                      id="principal" 
+                      name="principal" 
+                      value={formData.principal} 
                       onChange={handleChange} 
                     />
                   </div>
