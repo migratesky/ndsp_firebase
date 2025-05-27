@@ -7,8 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { School } from '@/types';
 import { ArrowLeft } from 'lucide-react';
 
+type SchoolWithId = School & { _id?: string; id?: string };
+
 export default function SchoolsListPage() {
-  const [schools, setSchools] = useState<School[]>([]);
+  const [schools, setSchools] = useState<SchoolWithId[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,13 +39,13 @@ export default function SchoolsListPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Schools</h1>
         <Button asChild>
-          <Link href="/admin/dashboard/add">Add New School</Link>
+          <Link href="/admin/schools/add">Add New School</Link>
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {schools.map((school) => (
-          <Card key={school.id} className="hover:shadow-lg transition-shadow">
+          <Card key={school._id || school.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <CardTitle>{school.name}</CardTitle>
             </CardHeader>

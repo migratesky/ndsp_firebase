@@ -52,7 +52,11 @@ export default function AddSchoolPage() {
           email: formData.email,
           website: formData.website,
           accreditation: formData.accreditation,
-          principal: formData.principal
+          principal: formData.principal,
+          instructionInEnglish: formData.instructionInEnglish,
+          publicPrivate: formData.publicPrivate,
+          boardingOption: formData.boardingOption,
+          boardingDetails: formData.boardingDetails
         }),
       });
 
@@ -171,6 +175,24 @@ export default function AddSchoolPage() {
                   </div>
                   
                   <div className="space-y-2">
+                    <Label htmlFor="publicPrivate">School Type *</Label>
+                    <Select 
+                      name="publicPrivate"
+                      value={formData.publicPrivate}
+                      onValueChange={(value) => setFormData({...formData, publicPrivate: value})}
+                      required
+                    >
+                      <SelectTrigger data-testid="publicPrivate">
+                        <SelectValue placeholder="Select school type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="public">Public</SelectItem>
+                        <SelectItem value="private">Private</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
                     <Label htmlFor="website">Website *</Label>
                     <Input 
                       data-testid="website"
@@ -232,25 +254,6 @@ export default function AddSchoolPage() {
                       onChange={handleChange} 
                       required 
                     />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="publicPrivate">School Type *</Label>
-                    <Select 
-                      data-testid="school-type"
-                      name="publicPrivate" 
-                      value={formData.publicPrivate}
-                      onValueChange={(value) => setFormData({...formData, publicPrivate: value})}
-                      required
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Public">Public</SelectItem>
-                        <SelectItem value="Private">Private</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   
                   <div className="space-y-2">
