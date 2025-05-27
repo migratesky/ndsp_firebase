@@ -1,5 +1,7 @@
+
 export interface School {
-  id: string;
+  _id?: string; // MongoDB ObjectId, optional on client before creation
+  id?: string; // Original ID if migrating, or could be same as _id string
   name: string;
   country: string;
   city: string;
@@ -19,6 +21,8 @@ export interface School {
   lat?: number; // For map coordinates
   lng?: number; // For map coordinates
   isVirtual?: boolean;
+  createdAt?: string | Date; // Added by MongoDB
+  updatedAt?: string | Date; // Added by MongoDB
 }
 
 export interface StateGraduationRequirement {
@@ -61,3 +65,19 @@ export type BreadcrumbItem = {
   label: string;
   href: string;
 };
+
+// Basic User type for Admin - Manual User Management
+export interface UserAccount {
+  _id?: string;
+  id?: string;
+  username: string; // Login ID, e.g., email format
+  email: string;
+  fullName?: string;
+  roles: UserRole[];
+  status: 'Active' | 'Disabled' | 'Pwd Reset Req';
+  createdAt?: string | Date;
+  lastLogin?: string | Date;
+}
+
+export type UserRole = 'School DB Editor' | 'Content Approver' | 'Admin' | 'Reviewer' | 'Viewer';
+
