@@ -66,18 +66,21 @@ export type BreadcrumbItem = {
   href: string;
 };
 
+export const UserRoles = ['School DB Editor', 'Content Approver', 'Admin', 'Reviewer', 'Viewer'] as const;
+export type UserRole = typeof UserRoles[number];
+
+export const UserAccountStatuses = ['Active', 'Disabled', 'Pwd Reset Req'] as const;
+export type UserAccountStatus = typeof UserAccountStatuses[number];
+
 // Basic User type for Admin - Manual User Management
 export interface UserAccount {
   _id?: string;
-  id?: string;
   username: string; // Login ID, e.g., email format
   email: string;
   fullName?: string;
   roles: UserRole[];
-  status: 'Active' | 'Disabled' | 'Pwd Reset Req';
+  status: UserAccountStatus;
   createdAt?: string | Date;
-  lastLogin?: string | Date;
+  updatedAt?: string | Date;
+  lastLogin?: string | Date; // Optional, if tracked
 }
-
-export type UserRole = 'School DB Editor' | 'Content Approver' | 'Admin' | 'Reviewer' | 'Viewer';
-
