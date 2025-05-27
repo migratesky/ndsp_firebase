@@ -1,18 +1,16 @@
-// Placeholder for Admin Dashboard (Screen 14)
-// This page would be protected and have its own layout.
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LayoutDashboard, School, Users, FileEdit, LogOut } from "lucide-react";
+import { LayoutDashboard, School, Users, LogOut } from "lucide-react";
 
 export default function AdminDashboardPage() {
   return (
     <div className="flex min-h-screen bg-muted/40">
-      {/* Admin Sidebar Placeholder */}
-      <aside className="w-64 bg-primary text-primary-foreground p-4 space-y-2 md:w-64 lg:w-64 xl:w-64">
+      {/* Admin Sidebar */}
+      <aside className="w-64 bg-primary text-primary-foreground p-4 space-y-2">
         <h2 className="text-xl font-semibold mb-6">Admin Panel</h2>
         <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80" asChild>
-          <Link href="/admin/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard</Link>
+          <Link href="/admin"><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard</Link>
         </Button>
         <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80" asChild>
           <Link href="/admin/schools"><School className="mr-2 h-4 w-4" /> School DB Mgt</Link>
@@ -20,21 +18,18 @@ export default function AdminDashboardPage() {
         <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80" asChild>
           <Link href="/admin/users"><Users className="mr-2 h-4 w-4" /> User Mgt</Link>
         </Button>
-        <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80" asChild>
-          <Link href="/admin/content"><FileEdit className="mr-2 h-4 w-4" /> Content Mgt</Link>
-        </Button>
         <div className="pt-auto !mt-auto">
-             <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80 !mt-auto" asChild>
-                <Link href="/"><LogOut className="mr-2 h-4 w-4" /> Logout</Link>
-            </Button>
+          <Button variant="ghost" className="w-full justify-start text-primary-foreground hover:bg-primary/80 !mt-auto" asChild>
+            <Link href="/"><LogOut className="mr-2 h-4 w-4" /> Logout</Link>
+          </Button>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-6">
         <header className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-primary">NDSP Administration Dashboard</h1>
-            <span className="text-sm text-muted-foreground">Welcome, AdminName</span>
+          <h1 className="text-3xl font-bold text-primary">NDSP Administration Dashboard</h1>
+          <span className="text-sm text-muted-foreground">Welcome, Admin</span>
         </header>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -56,7 +51,7 @@ export default function AdminDashboardPage() {
               <p className="text-sm text-muted-foreground">Technical assistance</p>
             </CardContent>
           </Card>
-           <Card>
+          <Card>
             <CardHeader>
               <CardTitle>System Status</CardTitle>
             </CardHeader>
@@ -66,21 +61,6 @@ export default function AdminDashboardPage() {
             </CardContent>
           </Card>
         </div>
-
-        <section className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4 text-primary">Common Tasks</h2>
-          <div className="space-x-4">
-            <Button variant="outline" asChild>
-              <Link href="/admin/dashboard/add">Add New School</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/admin/users">Manage Users</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/admin/analytics">View Analytics</Link>
-            </Button>
-          </div>
-        </section>
       </main>
     </div>
   );

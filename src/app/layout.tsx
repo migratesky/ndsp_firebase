@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "sonner";
 import { setupErrorHandling } from '@/utils/errorLogger';
 import AuthProvider from '@/components/AuthProvider';
 
@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className="font-sans">
         <AuthProvider>
           {children}
-          <Toaster />
+          <Toaster position="top-right" richColors />
         </AuthProvider>
       </body>
     </html>
