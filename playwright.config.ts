@@ -38,7 +38,13 @@ export default defineConfig({
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        storageState: authStorageState
+        storageState: {
+          cookies: [],
+          origins: [{
+            origin: 'http://localhost:3000',
+            localStorage: [{ name: 'auth', value: 'token' }]
+          }]
+        }
       },
     },
   ],

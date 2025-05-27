@@ -40,6 +40,20 @@ export class TestFixture {
     const OUT_LOG_PATH = path.join(process.cwd(), 'out.log');
     this.logFile = OUT_LOG_PATH;
     fs.writeFileSync(this.logFile, `=== Starting test at ${new Date().toISOString()} ===\n`);
+    
+    // Add page error handlers
+    this.page.on('pageerror', (error) => {
+      this.debugLog(`Page Error: ${error.message}`);
+      this.errors.push(error.message);
+    });
+
+    this.page.on('console', (msg) => {
+      this.consoleLogs.push({
+        type: msg.type(),
+        text: msg.text()
+      });
+      this.debugLog(`Console ${msg.type()}: ${msg.text()}`);
+    });
   }
 
   /**
@@ -76,6 +90,7 @@ export class TestFixture {
       if (msg.type() === 'error') {
         this.errors.push(msg.text());
         console.log(logEntry.trim()); // Echo to terminal
+        throw new Error(`Test failed due to console error: ${msg.text()}`);
       }
     });
     
@@ -129,6 +144,31 @@ export class TestFixture {
     this.debugLog('=== Test completed successfully ===');
   }
 
+  /**
+   * Check if any errors were captured
+   */
+  hasErrors(): boolean {
+    return this.errors.length > 0;
+  }
+
+  /**
+   * Get captured errors
+   */
+  getErrors(): string[] {
+    return [...this.errors];
+  }
+
+  /**
+   * Save screenshot with timestamp
+   */
+  async saveScreenshot(name: string): Promise<void> {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    await this.page.screenshot({ 
+      path: `test-results/${name}-${timestamp}.png`,
+      fullPage: true
+    });
+    this.debugLog(`Saved screenshot: ${name}-${timestamp}.png`);
+  }
 
   /**
    * Force test failure if a specific error pattern is detected
@@ -152,14 +192,6 @@ export class TestFixture {
       this.debugLog(`[FORCED FAILURE] Found console error matching pattern: ${errorPattern}`);
       throw new Error(`Test failed due to console error: ${foundConsoleError.text}`);
     }
-  }
-
-  /**
-   * Get all captured errors
-   * @returns Array of error messages
-   */
-  getErrors(): string[] {
-    return this.errors;
   }
 
   /**

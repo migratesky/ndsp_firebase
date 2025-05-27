@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Layout } from '@/components/admin/layout';
+import { AdminLayout } from '@/components/admin/layout';
 import { useState, useEffect } from 'react';
 
 type ContentItem = {
@@ -16,7 +16,7 @@ type ContentItem = {
 
 export default function ContentPage() {
   return (
-    <Layout>
+    <AdminLayout>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold" data-testid="content-management-title">Content Management</h1>
         <Button data-testid="add-content">Add New Content</Button>
@@ -60,6 +60,6 @@ export default function ContentPage() {
           </TableRow>
         </TableBody>
       </Table>
-    </Layout>
+    </AdminLayout>
   );
 }

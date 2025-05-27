@@ -50,55 +50,40 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  console.log('POST /api/schools received');
+  
   try {
+    console.log('Connecting to MongoDB...');
     const { db } = await connectToDatabase();
-    const body = await request.json();
-    console.log('Received school data:', body);
+    console.log('Successfully connected to MongoDB');
     
-    try {
-      const validatedData = schoolSchema.parse(body);
-      console.log('Validated school data:', validatedData);
-      
-      // Drop any problematic unique index on id field
-      try {
-        await db.collection('schools').dropIndex('id_1');
-      } catch (e) {
-        // Ignore if index doesn't exist
-        console.log('Index id_1 not found or already dropped');
-      }
-      
-      const result = await db.collection('schools').insertOne({
-        ...validatedData,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-      
-      return NextResponse.json(
-        { success: true, id: result.insertedId },
-        { 
-          status: 201,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-    } catch (validationError) {
-      console.error('Validation error:', validationError);
-      return NextResponse.json(
-        { 
-          error: 'Validation failed', 
-          details: validationError instanceof Error ? validationError.message : validationError 
-        },
-        { status: 400 }
-      );
-    }
-  } catch (error) {
-    console.error('Database error:', error);
+    const body = await request.json();
+    console.log('Request body:', body);
+    
+    const validatedData = schoolSchema.parse({
+      ...body,
+      country: body.country || 'United States',
+      instructionInEnglish: body.instructionInEnglish || true,
+      publicPrivate: body.publicPrivate || 'private',
+      boardingOption: body.boardingOption || false,
+      principal: body.principal || 'Not specified'
+    });
+    console.log('Validated data:', validatedData);
+    
+    console.log('Inserting school into database...');
+    const result = await db.collection('schools').insertOne(validatedData);
+    console.log('Insert result:', result);
+    
     return NextResponse.json(
-      { error: 'Failed to create school', details: error },
-      { status: 500 }
+      { id: result.insertedId, ...validatedData },
+      { status: 201 }
+    );
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error in POST /api/schools:', errorMessage, error);
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: 400 }
     );
   }
 }

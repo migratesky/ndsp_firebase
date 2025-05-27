@@ -11,16 +11,17 @@ import { getSchoolById } from '@/data/mockData';
 import type { School, BreadcrumbItem } from '@/types';
 import { ArrowLeft, AlertTriangle, MapPin, Globe as WebIcon, Phone, BookOpen, Building, Users, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
-export default function SchoolDetailPage() {
-  const params = useParams();
+export default function SchoolDetailPage({ params }: { params: { id: string | string[] } | null }) {
+  if (!params?.id) return <div>Invalid school ID</div>;
+  const schoolId = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
   const [school, setSchool] = useState<School | null | undefined>(undefined); // undefined for loading, null for not found
   const [breadcrumbItems, setBreadcrumbItems] = useState<BreadcrumbItem[]>([]);
 
   useEffect(() => {
-    if (params.id) {
-      const schoolId = Array.isArray(params.id) ? params.id[0] : params.id;
+    if (params?.id) {
       const foundSchool = getSchoolById(schoolId);
       setSchool(foundSchool);
 
@@ -35,7 +36,7 @@ export default function SchoolDetailPage() {
          setBreadcrumbItems([{ label: 'Find an International School', href: '/find-school' }]);
       }
     }
-  }, [params.id]);
+  }, [params?.id]);
 
   if (school === undefined) { // Loading state
     return (

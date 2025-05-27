@@ -10,7 +10,11 @@ export const authOptions = {
     ...authConfig.callbacks,
     async session({ session, token }: { session: Session; token: TokenSet }) {
       if (session?.user) {
-        session.user.role = token.role || 'user';
+        if (token.role) {
+          session.user = { ...session.user, role: token.role as string };
+        } else {
+          session.user = { ...session.user, role: 'user' };
+        }
       }
       return session;
     },

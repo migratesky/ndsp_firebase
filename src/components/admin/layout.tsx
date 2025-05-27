@@ -1,5 +1,7 @@
 'use client';
 
+import { Toaster } from '@/components/ui/toaster';
+
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
@@ -10,6 +12,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       
       {/* Main content */}
       <div className="flex-1 p-8">
+        <Toaster />
         {children}
       </div>
     </div>

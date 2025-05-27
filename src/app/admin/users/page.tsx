@@ -27,13 +27,12 @@ export default function UsersPage() {
   const [addUserOpen, setAddUserOpen] = useState(false);
 
   useEffect(() => {
-    // Redirect if not authenticated or not admin
     if (status === 'unauthenticated') {
-      router.push('/login');
+      router.push('/');
       return;
     }
     
-    if (status === 'authenticated' && session.user.role !== 'admin') {
+    if (status === 'authenticated' && session?.user?.role !== 'admin') {
       router.push('/');
       return;
     }
@@ -53,10 +52,8 @@ export default function UsersPage() {
       }
     };
     
-    if (status === 'authenticated') {
-      fetchUsers();
-    }
-  }, [status, session, router]);
+    fetchUsers();
+  }, [status, session?.user?.role, router]);
 
   const handleDelete = async (userId: string) => {
     try {
