@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+// import { Inter } from 'next/font/google'; // Removed Inter font
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { setupErrorHandling } from '@/utils/errorLogger';
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
+// const inter = Inter({
+//   subsets: ['latin'],
+//   variable: '--font-inter',
+// }); // Removed Inter font
 
 export const metadata: Metadata = {
   title: 'NDSP Navigator',
@@ -25,8 +25,9 @@ export default function RootLayout({
   }
 
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="font-sans">
+    // <html lang="en" className={inter.variable}> // Removed inter.variable
+    <html lang="en">
+      <body className="font-sans"> {/* Ensures a fallback to system sans-serif fonts */}
         {children}
         <Toaster />
       </body>
