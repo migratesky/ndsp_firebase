@@ -40,28 +40,8 @@ mongoose.set('bufferCommands', false);
 mongoose.set('bufferTimeoutMS', 0);
 mongoose.set('maxTimeMS', 5000); // Reduced from 30000
 
-let cachedClient: MongoClient | undefined;
-let cachedDb: Db | undefined;
-
 export async function connectToDatabase() {
   debug('connectToDatabase called');
-  
-  // Check if we have a cached connection
-  if (cachedClient && cachedDb) {
-    try {
-      debug('Using cached connection, checking if still alive...');
-      await cachedDb.command({ ping: 1 });
-      debug('Cached connection is still alive');
-      return { client: cachedClient, db: cachedDb };
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      debug('Cached connection failed, will create a new one', { error: errorMessage });
-      cachedClient = undefined;
-      cachedDb = undefined;
-    }
-  } else {
-    debug('No cached connection available, creating a new one');
-  }
 
   const isSRV = uri.includes('mongodb+srv://');
   const connectionOptions: MongoClientOptions = {
@@ -105,15 +85,11 @@ export async function connectToDatabase() {
     await db.command({ ping: 1 });
     debug('Database ping successful', { pingDuration: Date.now() - pingStart });
     
-    // Cache the connection
-    cachedClient = client;
-    cachedDb = db;
-    
     // Log available collections
     const collections = await db.listCollections().toArray();
     debug('Available collections:', { collections: collections.map(c => c.name) });
     
-    debug('MongoDB connection established and cached', {
+    debug('MongoDB connection established', {
       uriType: isSRV ? 'SRV' : 'Standard',
       dbName,
       connectionTime: Date.now() - connectStart,
@@ -145,4 +121,4 @@ export async function connectToDatabase() {
     
     throw error;
   }
-  }
+}
