@@ -1,4 +1,3 @@
-
 import { Schema, model, models } from 'mongoose';
 import type { UserAccount, UserRole, UserAccountStatus } from '@/types';
 import { UserRoles, UserAccountStatuses } from '@/types';
@@ -43,7 +42,17 @@ const UserAccountSchema = new Schema<UserAccount>({
   lastLogin: {
     type: Date,
   }
-}, { timestamps: true }); // timestamps will add createdAt and updatedAt
+}, {
+  bufferCommands: false, // Disable buffering
+  bufferTimeoutMS: 0,    // No buffering timeout
+  timestamps: true
+}); // timestamps will add createdAt and updatedAt
 
 // Ensure the model is not redefined if it already exists (common in Next.js dev environment)
 export const UserAccountModel = models.UserAccount || model<UserAccount>('UserAccount', UserAccountSchema);
+
+// Create indexes with no background building
+UserAccountSchema.index({ createdAt: -1 }, { background: false });
+
+// Note: We'll apply maxTimeMS at the query level in the API endpoints
+// This is more flexible than setting it at the schema level

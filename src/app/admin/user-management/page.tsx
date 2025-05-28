@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -44,7 +43,7 @@ export default function UserManagementPage() {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to fetch users');
       }
-      const data = await response.json();
+      const { data } = await response.json();
       setUsers(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred');

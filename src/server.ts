@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://chaitanyapinnaka:GwjSKlkyrDsBMsLw@cluster0.tp0kf5a.mongodb.net/interactivemap?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 const connectDB = async () => {
   const maxRetries = 3;
