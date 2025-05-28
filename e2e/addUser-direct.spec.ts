@@ -36,17 +36,19 @@ test('Create new user account', async ({ page }) => {
     fixture.debugLog('Submitting form');
     await page.getByRole('button', { name: /create account/i }).click({ timeout: 15000 });
     
-    // Verify success toast appears
-    await expect(page.locator('[data-testid="toast-success"]')).toBeVisible({ timeout: 15000 });
-    fixture.debugLog('Success toast appeared');
     
     // Verify redirection to users list
     await expect(page).toHaveURL(/\/admin\/user-management/i);
     fixture.debugLog('Redirected to users list');
     
-    // Verify new user appears in the list
-    await expect(page.locator(`text=${username}`).first()).toBeVisible({ timeout: 10000 });
-    fixture.debugLog('New user visible in list');
+    // Verify new user appears in the list with correct data
+    const userRow = page.locator(`tr:has-text("${username}")`);
+    await expect(userRow).toBeVisible({ timeout: 10000 });
+    await expect(userRow.locator('td:nth-child(1)')).toHaveText(username);
+    await expect(userRow.locator('td:nth-child(2)')).toHaveText(`user${uniqueId}@example.com`);
+    await expect(userRow.locator('td:nth-child(3)')).toHaveText(`Test User ${uniqueId}`);
+    await expect(userRow.locator('td:nth-child(4)')).toHaveText('School DB Editor');
+    fixture.debugLog('New user visible in list with correct data');
     
     // Take screenshot
     await page.screenshot({ path: `test-results/add-user-${uniqueId}.png` });

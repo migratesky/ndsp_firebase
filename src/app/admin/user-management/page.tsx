@@ -153,10 +153,10 @@ export default function UserManagementPage() {
               <TableBody>
                 {paginatedUsers.map((user) => (
                   <TableRow key={user._id}>
-                    <TableCell className="font-medium">{user.username}</TableCell>
+                    <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.fullName || 'N/A'}</TableCell>
-                    <TableCell>{user.roles?.length ? user.roles.join(', ') : 'No roles assigned'}</TableCell>
+                    <TableCell>{user.fullName || '-'}</TableCell>
+                    <TableCell>{user.roles?.join(', ') || '-'}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         user.status === 'Active' ? 'bg-green-100 text-green-700' 

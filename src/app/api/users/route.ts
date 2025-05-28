@@ -40,9 +40,11 @@ export async function GET(request: Request) {
     console.log('[API /api/users] Executing query with index on createdAt');
     const users = await UserAccountModel.find({}, { 
       _id: 1, 
-      name: 1, 
+      username: 1,
       email: 1, 
-      role: 1, 
+      roles: 1,
+      fullName: 1,
+      status: 1,
       createdAt: 1 
     })
     .sort({ createdAt: -1 })
