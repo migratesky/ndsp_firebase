@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Search, Edit, Trash2, KeyRound, FilterX, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { UserAccount, UserRole, UserAccountStatus } from '@/types';
 import { UserRoles, UserAccountStatuses } from '@/types';
@@ -40,11 +41,11 @@ export default function UserManagementPage() {
     try {
       const response = await fetch('/api/users');
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch users');
+        const errorData = await response.json() as { error?: string };
+        throw new Error(errorData?.error || 'Failed to fetch users');
       }
-      const { data } = await response.json();
-      setUsers(data);
+      const responseData = await response.json() as { data?: UserAccount[] };
+      setUsers(responseData.data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
       toast({ title: "Error", description: err instanceof Error ? err.message : "Could not fetch users.", variant: "destructive" });
@@ -59,7 +60,7 @@ export default function UserManagementPage() {
                                 user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 (user.fullName && user.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesRole = roleFilter === 'all' || user.roles.includes(roleFilter);
+      const matchesRole = roleFilter === 'all' || (user.roles && user.roles.includes(roleFilter));
       const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
       return matchesSearchTerm && matchesRole && matchesStatus;
     });
@@ -111,7 +112,7 @@ export default function UserManagementPage() {
             <CardTitle>Filters</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-            <Input placeholder="Username/Email/Name" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <Input placeholder="Username/Email/Name" value={searchTerm} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)} />
             <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as UserRole | 'all')}>
               <SelectTrigger><SelectValue placeholder="Role: All" /></SelectTrigger>
               <SelectContent>
@@ -155,7 +156,7 @@ export default function UserManagementPage() {
                     <TableCell className="font-medium">{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.fullName || 'N/A'}</TableCell>
-                    <TableCell>{user.roles.join(', ')}</TableCell>
+                    <TableCell>{user.roles?.length ? user.roles.join(', ') : 'No roles assigned'}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         user.status === 'Active' ? 'bg-green-100 text-green-700' 
@@ -172,11 +173,27 @@ export default function UserManagementPage() {
                       <Button variant="outline" size="sm" title="Reset Password (placeholder)" onClick={() => toast({title: "Placeholder", description:"Password reset functionality not yet implemented."})}>
                         <KeyRound className="h-3 w-3" />
                       </Button>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" title="Delete User" onClick={() => setUserToDelete(user)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </AlertDialogTrigger>
+                      <Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" title="Delete User" onClick={() => setUserToDelete(user)}>
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirm User Account Deletion</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                You are about to permanently delete the user account: <strong>{userToDelete?.username}</strong> ({userToDelete?.email}). This action cannot be undone. Are you sure?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={() => setUserToDelete(null)}>NO, CANCEL</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive hover:bg-destructive/90">YES, DELETE THIS ACCOUNT</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </Dialog>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -197,22 +214,7 @@ export default function UserManagementPage() {
           </div>
         )}
         
-        <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Confirm User Account Deletion</AlertDialogTitle>
-              <AlertDialogDescription>
-                You are about to permanently delete the user account: <strong>{userToDelete?.username}</strong> ({userToDelete?.email}). This action cannot be undone. Are you sure?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setUserToDelete(null)}>NO, CANCEL</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive hover:bg-destructive/90">YES, DELETE THIS ACCOUNT</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-         <footer className="mt-12 border-t pt-6 text-center text-sm text-muted-foreground">
+        <footer className="mt-12 border-t pt-6 text-center text-sm text-muted-foreground">
           <p>[Internal DoDEA Links] | [Admin Support]</p>
         </footer>
       </main>

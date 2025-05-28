@@ -52,3 +52,4 @@ node_modules/
 /playwright/.cache/
 out.log
 playwright-debug/*
+mongo-debug.log

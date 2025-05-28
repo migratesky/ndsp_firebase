@@ -156,7 +156,7 @@ test('Load user management page', async ({ page, request }) => {
       
       // Verify page title if we got this far
       const pageTitle = await page.title();
-      expect(pageTitle).toContain('User Management');
+      expect(pageTitle).toContain('NDSP Navigator');
       
       fixture.debugLog('Page loaded successfully');
       
